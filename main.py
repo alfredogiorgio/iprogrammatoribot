@@ -4,6 +4,7 @@ import json
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import httpx
 import asyncio
+import tgcrypto
 
 sched = AsyncIOScheduler()
 

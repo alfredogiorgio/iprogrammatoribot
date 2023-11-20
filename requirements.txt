@@ -3,3 +3,4 @@ lxml
 APScheduler
 httpx
 pyrogram
+tgcrypto
