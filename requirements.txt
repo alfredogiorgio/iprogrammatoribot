@@ -4,3 +4,4 @@ APScheduler
 httpx
 pyrogram
 tgcrypto
+telegraph

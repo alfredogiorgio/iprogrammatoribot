@@ -6,6 +6,8 @@ import httpx
 import asyncio
 import tgcrypto
 import os
+from telegraph import Telegraph
+
 
 sched = AsyncIOScheduler()
 
@@ -98,39 +100,25 @@ async def scrape():
 
 📅 Data di pubblicazione: {jobJson['date']}  """
 
-            await app.send_message(-1002097330914, text=text)
+            telegraph.create_account(short_name='Programmatori')
+            response = telegraph.create_page(f'{jobJson["title"]}',
+                                             html_content=f'<p>{jobJson['content']}</p>')
+            linktelegraph = response['url']
 
-
-
- telegraph.create_account(short_name='Ferrovie')
-    response = telegraph.create_page(f'{data["title"]}',
-                                     html_content=f'<p>{descrizione}</p>')
-    linktelegraph = response['url']
-    CACHE.append(data)
-
-    riga3 = [
-      InlineKeyboardButton('Cerca 🔍',
-                           url="t.me/concorsiferroviebot?start=cerca")
-    ]
-
-    annunciobuttons = [[
-      InlineKeyboardButton(
-        'Condividi il canale ❗',
-        url=
-        "https://telegram.me/share/url?url=https://telegram.me/iProgrammatoriAnnunci&text=Unisciti%20per%20ricevere%20notifiche%20su%20nuovi%20annunci%20di%20lavoro"
-      )
-    ], [InlineKeyboardButton('Descrizione 📃', url=f"{linktelegraph}")], riga3]
+            annunciobuttons = [[
+                InlineKeyboardButton(
+                    'Condividi il canale ❗',
+                    url="https://telegram.me/share/url?url=https://telegram.me/iProgrammatoriAnnunci&text=Unisciti%20per%20ricevere%20notifiche%20su%20nuovi%20annunci%20di%20lavoro"
+                )
+            ], [InlineKeyboardButton('Descrizione 📃', url=f"{linktelegraph}")]]
 
     markupannuncio = InlineKeyboardMarkup(annunciobuttons)
 
-    inviato = await telegram.send_message(CHAT_ID,
-                                          MESSAGE.format(**data),
-                                          reply_markup=markupannuncio,
-                                          disable_web_page_preview=True)
+    await app.send_message(-1002097330914, text=text, reply_markup=markupannuncio,
+                           disable_web_page_preview=True)
 
-
-        with open('newJobs.json', 'w') as file:
-            json.dump(data, file, indent=4)
+    with open('newJobs.json', 'w') as file:
+        json.dump(data, file, indent=4)
 
 sched.add_job(scrape, 'interval', minutes=1)
 sched.start()
