@@ -5,16 +5,18 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import httpx
 import asyncio
 import tgcrypto
+import os
 
 sched = AsyncIOScheduler()
 
 
-api_id = 12345
-api_hash = ""
-bot_token = ""
+api_id = os.getenv('api_id')
+api_hash = os.getenv('api_hash')
+bot_token = os.getenv('bot_token')
+
 
 app = Client(
-    "my_bot",
+    "iProgrammatoriBot",
     api_id=api_id, api_hash=api_hash,
     bot_token=bot_token
 )
@@ -85,6 +87,47 @@ async def scrape():
             data.append(jobJson)
 
             print(jobJson['title'])
+
+            text = f"""💻 Nuovo annuncio!
+
+🔗 <a href={jobJson['url']}> {jobJson['title']}  </a>
+
+📍 Sede: {jobJson['city']}
+🏭 Azienda: {jobJson['company']}
+📄 Contratto: {jobJson['jobtype']}
+
+📅 Data di pubblicazione: {jobJson['date']}  """
+
+            await app.send_message(-1002097330914, text=text)
+
+
+
+ telegraph.create_account(short_name='Ferrovie')
+    response = telegraph.create_page(f'{data["title"]}',
+                                     html_content=f'<p>{descrizione}</p>')
+    linktelegraph = response['url']
+    CACHE.append(data)
+
+    riga3 = [
+      InlineKeyboardButton('Cerca 🔍',
+                           url="t.me/concorsiferroviebot?start=cerca")
+    ]
+
+    annunciobuttons = [[
+      InlineKeyboardButton(
+        'Condividi il canale ❗',
+        url=
+        "https://telegram.me/share/url?url=https://telegram.me/iProgrammatoriAnnunci&text=Unisciti%20per%20ricevere%20notifiche%20su%20nuovi%20annunci%20di%20lavoro"
+      )
+    ], [InlineKeyboardButton('Descrizione 📃', url=f"{linktelegraph}")], riga3]
+
+    markupannuncio = InlineKeyboardMarkup(annunciobuttons)
+
+    inviato = await telegram.send_message(CHAT_ID,
+                                          MESSAGE.format(**data),
+                                          reply_markup=markupannuncio,
+                                          disable_web_page_preview=True)
+
 
         with open('newJobs.json', 'w') as file:
             json.dump(data, file, indent=4)
