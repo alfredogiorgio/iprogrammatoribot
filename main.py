@@ -7,7 +7,10 @@ import asyncio
 import tgcrypto
 import os
 from telegraph import Telegraph
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
+
+telegraph = Telegraph()
 
 sched = AsyncIOScheduler()
 
@@ -90,19 +93,23 @@ async def scrape():
 
             print(jobJson['title'])
 
-            text = f"""💻 Nuovo annuncio!
+            text = f"""💻 <b>Nuovo annuncio!</b>
 
-🔗 <a href={jobJson['url']}> {jobJson['title']}  </a>
+🔗 <b><a href={jobJson['url']}>{jobJson['title']}</a></b>
 
-📍 Sede: {jobJson['city']}
-🏭 Azienda: {jobJson['company']}
-📄 Contratto: {jobJson['jobtype']}
+📍 Sede: <b>{jobJson['city']}</b>
+🏭 Azienda: <b>{jobJson['company']}</b>
+📄 Contratto: <b>{jobJson['jobtype']}</b>
 
-📅 Data di pubblicazione: {jobJson['date']}  """
+📅 Data di pubblicazione: <b>{jobJson['date']}</b>"""
 
             telegraph.create_account(short_name='Programmatori')
             response = telegraph.create_page(f'{jobJson["title"]}',
-                                             html_content=f'<p>{jobJson['content']}</p>')
+                                             html_content=f"""<h2>Descrizione</h2>
+                                             <p>{jobJson['content']}</p>
+                                             <h2>Requisiti</h2>
+                                             <p>{jobJson['requirements']}
+                                             """)
             linktelegraph = response['url']
 
             annunciobuttons = [[
@@ -112,20 +119,23 @@ async def scrape():
                 )
             ], [InlineKeyboardButton('Descrizione 📃', url=f"{linktelegraph}")]]
 
-    markupannuncio = InlineKeyboardMarkup(annunciobuttons)
+            markupannuncio = InlineKeyboardMarkup(annunciobuttons)
 
-    await app.send_message(-1002097330914, text=text, reply_markup=markupannuncio,
-                           disable_web_page_preview=True)
+            await app.send_message(-1002097330914, text=text, parse_mode='HTML', reply_markup=markupannuncio,
+                                   disable_web_page_preview=True)
+
+            print("inviato messaggio")
 
     with open('newJobs.json', 'w') as file:
         json.dump(data, file, indent=4)
 
-sched.add_job(scrape, 'interval', minutes=1)
+
+app.start()
+
+sched.add_job(scrape, 'interval', seconds=30)
 sched.start()
 
 try:
     asyncio.get_event_loop().run_forever()
 except (KeyboardInterrupt, SystemExit):
     pass
-
-app.run()
