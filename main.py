@@ -105,10 +105,10 @@ async def scrape():
 
             telegraph.create_account(short_name='Programmatori')
             response = telegraph.create_page(f'{jobJson["title"]}',
-                                             html_content=f"""<h2>Descrizione</h2>
+                                             html_content=f"""<p><b>Descrizione</b></p>
                                              <p>{jobJson['content']}</p>
-                                             <h2>Requisiti</h2>
-                                             <p>{jobJson['requirements']}
+                                             <p><b>Requisiti</b></p>
+                                             <p>{jobJson['requirements']}</p>
                                              """)
             linktelegraph = response['url']
 
@@ -121,7 +121,7 @@ async def scrape():
 
             markupannuncio = InlineKeyboardMarkup(annunciobuttons)
 
-            await app.send_message(-1002097330914, text=text, parse_mode='HTML', reply_markup=markupannuncio,
+            await app.send_message(-1002097330914, text=text, reply_markup=markupannuncio,
                                    disable_web_page_preview=True)
 
             print("inviato messaggio")
